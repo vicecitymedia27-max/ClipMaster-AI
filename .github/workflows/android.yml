@@ -21,8 +21,11 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Configure Android SDK
+        run: |
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -32,15 +35,15 @@ jobs:
       - name: Extract source
         run: |
           mkdir source
-          unzip ClipMasterAI-Android-Source.zip -d source
+          unzip -o ClipMasterAI-Android-Source.zip -d source
 
       - name: Build APK
-        working-directory: source
+        working-directory: source/ClipMasterAI
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ClipMaster-AI-APK
-          path: source/app/build/outputs/apk/debug/app-debug.apk
+          path: source/ClipMasterAI/app/build/outputs/apk/debug/app-debug.apk
           
